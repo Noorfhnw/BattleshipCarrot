@@ -33,7 +33,10 @@ private val COLUMN_LABELS = (0..9).toList()
 private typealias BoardState = Array<Array<androidx.compose.runtime.MutableState<CellState>>>
 
 @Composable
-fun GameScreen(viewModel: BattleshipViewModel) {
+fun GameScreen(
+    viewModel: BattleshipViewModel,
+    onTryFindCarrot: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -100,6 +103,10 @@ fun GameScreen(viewModel: BattleshipViewModel) {
 
         Text("Opponent's Board (Targeting)", color = Color.White)
         BoardView(grid = viewModel.opponentBoard) { row, col ->
+            val isUntriedCell = viewModel.opponentBoard[row][col].value == CellState.EMPTY
+            if (viewModel.isMyTurn && !viewModel.gameOver && isUntriedCell) {
+                onTryFindCarrot()
+            }
             viewModel.fire(col, row)
         }
 

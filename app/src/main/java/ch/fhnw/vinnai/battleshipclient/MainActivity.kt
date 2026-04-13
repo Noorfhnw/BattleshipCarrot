@@ -12,14 +12,34 @@ const val BASE_URL = "http://10.0.2.2:50003"
 
 class MainActivity : ComponentActivity() {
     private val viewModel: BattleshipViewModel by viewModels()
+    private lateinit var soundManager: SoundManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        soundManager = SoundManager(this)
         enableEdgeToEdge()
         setContent {
             BattleshipCarrotTheme {
-                BattleshipApp(viewModel)
+                BattleshipApp(
+                    viewModel = viewModel,
+                    onTryFindCarrot = { soundManager.playDig() }
+                )
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        soundManager.resume()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        soundManager.pause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        soundManager.release()
     }
 }

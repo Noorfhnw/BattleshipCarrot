@@ -40,8 +40,8 @@ fun GridCell(state: CellState, onClick: () -> Unit) {
                 contentDescription = "Hit",
                 modifier = Modifier.size(28.dp)
             )
-        } else {
-            Text(emoji!!)
+        } else if (emoji != null) {
+            Text(emoji)
         }
     }
 }

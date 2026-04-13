@@ -3,4 +3,5 @@
     <string name="game_title">Battleship Carrot</string>
     <string name="start_button">Start</string>
     <string name="welcome_background_description">Wooden sign in a forest background</string>
+    <string name="attribution_gameplay">Gameplay and audio events</string>
 </resources>

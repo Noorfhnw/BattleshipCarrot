@@ -50,7 +50,10 @@ private val START_BUTTON_HEIGHT = 88.dp
 private val START_BUTTON_TEXT_SIZE = 20.sp
 
 @Composable
-fun BattleshipApp(viewModel: BattleshipViewModel) {
+fun BattleshipApp(
+    viewModel: BattleshipViewModel,
+    onTryFindCarrot: () -> Unit = {}
+) {
     var showWelcome by rememberSaveable { mutableStateOf(true) }
 
     if (showWelcome) {
@@ -68,7 +71,10 @@ fun BattleshipApp(viewModel: BattleshipViewModel) {
             JoinBar(viewModel)
 
             if (viewModel.hasJoined) {
-                GameScreen(viewModel)
+                GameScreen(
+                    viewModel = viewModel,
+                    onTryFindCarrot = onTryFindCarrot
+                )
             } else {
                 ShipPlacementScreen(viewModel)
             }
@@ -211,7 +217,7 @@ private fun ServerBar(viewModel: BattleshipViewModel) {
 private fun JoinBar(viewModel: BattleshipViewModel) {
     var userName by rememberSaveable { mutableStateOf("") }
     var gameKey by rememberSaveable { mutableStateOf("") }
-    val canJoin = viewModel.pingResult == true && viewModel.allShipsPlaced
+    val canJoin = viewModel.pingResult == true && viewModel.allShipsPlaced && !viewModel.isJoining
     val statusMessage = viewModel.statusMessage
 
     Column(

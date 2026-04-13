@@ -23,6 +23,7 @@ class BattleshipViewModel : ViewModel() {
     var isMyTurn by mutableStateOf(false)
     var gameOver by mutableStateOf(false)
     var hasJoined by mutableStateOf(false)
+    var isJoining by mutableStateOf(false)
     /** null while game is running, true if we won, false if we lost */
     var didIWin by mutableStateOf<Boolean?>(null)
 
@@ -102,7 +103,8 @@ class BattleshipViewModel : ViewModel() {
                     val url = apiUrl("/ping")
                     val connection = url.openConnection() as HttpURLConnection
                     connection.requestMethod = "GET"
-                    connection.connectTimeout = 2000
+                    connection.connectTimeout = 100000
+                    connection.readTimeout = 100000
                     connection.responseCode == 200
                 } catch (_: Exception) {
                     false
@@ -113,8 +115,11 @@ class BattleshipViewModel : ViewModel() {
     }
 
     fun joinGame(player: String, key: String) {
+        if (isJoining) return
         playerName = player
         gameKey = key
+        isJoining = true
+        statusMessage = "Waiting for opponent…"
 
         // Copy placed ships onto the defence board so they show during the game
         for (row in 0 until 10) for (col in 0 until 10) {
@@ -149,8 +154,12 @@ class BattleshipViewModel : ViewModel() {
                     if (connection.responseCode == 200) {
                         val response = connection.inputStream.bufferedReader().use { it.readText() }
                         val json = JSONObject(response)
-                        handleGameStatus(json)
-                        "Joined game"
+                        if (json.has("Error")) {
+                            "Error: ${json.getString("Error")}"
+                        } else {
+                            handleGameStatus(json)
+                            "Joined game"
+                        }
                     } else {
                         val error = connection.errorStream?.bufferedReader()?.use { it.readText() }
                         "Error: $error"
@@ -165,6 +174,8 @@ class BattleshipViewModel : ViewModel() {
                 if (!isMyTurn && !gameOver) {
                     waitForEnemyFire()
                 }
+            } else {
+                isJoining = false
             }
         }
     }
@@ -193,19 +204,23 @@ class BattleshipViewModel : ViewModel() {
                     if (connection.responseCode == 200) {
                         val response = connection.inputStream.bufferedReader().use { it.readText() }
                         val json = JSONObject(response)
-                        val hit = json.getBoolean("hit")
-                        opponentBoard[y][x].value = if (hit) CellState.HIT else CellState.MISS
-
-                        // Check if we won (all 5 enemy ships sunk)
-                        val shipsSunk = json.optJSONArray("shipsSunk")
-                        if (shipsSunk != null && shipsSunk.length() >= 5) {
-                            gameOver = true
-                            didIWin = true
+                        if (json.has("Error")) {
+                            "Error: ${json.getString("Error")}"
                         } else {
-                            isMyTurn = false
-                            waitForEnemyFire()
+                            val hit = json.getBoolean("hit")
+                            opponentBoard[y][x].value = if (hit) CellState.HIT else CellState.MISS
+
+                            // Check if we won (all 5 enemy ships sunk)
+                            val shipsSunk = json.optJSONArray("shipsSunk")
+                            if (shipsSunk != null && shipsSunk.length() >= 5) {
+                                gameOver = true
+                                didIWin = true
+                            } else {
+                                isMyTurn = false
+                                waitForEnemyFire()
+                            }
+                            "Shot fired"
                         }
-                        "Shot fired"
                     } else {
                         "Error firing"
                     }
@@ -235,8 +250,12 @@ class BattleshipViewModel : ViewModel() {
                     if (connection.responseCode == 200) {
                         val response = connection.inputStream.bufferedReader().use { it.readText() }
                         val json = JSONObject(response)
-                        handleGameStatus(json)
-                        "Opponent moved"
+                        if (json.has("Error")) {
+                            "Error: ${json.getString("Error")}"
+                        } else {
+                            handleGameStatus(json)
+                            "Opponent moved"
+                        }
                     } else {
                         "Error waiting for opponent"
                     }
@@ -270,6 +289,8 @@ class BattleshipViewModel : ViewModel() {
     private fun HttpURLConnection.setupJsonPost() {
         requestMethod = "POST"
         doOutput = true
+        connectTimeout = 100000
+        readTimeout = 600000
         setRequestProperty("Content-Type", "application/json")
     }
 
