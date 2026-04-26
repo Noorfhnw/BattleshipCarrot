@@ -86,7 +86,7 @@ fun BattleshipApp(
 private fun WelcomeScreen(onStartClick: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // 🌄 Background
+        // 🌄Background
         Image(
             painter = painterResource(R.drawable.wooden_sign_in_sunlit_forest),
             contentDescription = null,
@@ -94,11 +94,11 @@ private fun WelcomeScreen(onStartClick: () -> Unit) {
             modifier = Modifier.fillMaxSize()
         )
 
-        // 🎮 TITLE (manually positioned ON the wood)
+        //  TITLE (manually positioned ON the wood)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .offset(y = 420.dp), // 🔥 adjust THIS
+                .offset(y = 420.dp),
             contentAlignment = Alignment.Center
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -106,12 +106,12 @@ private fun WelcomeScreen(onStartClick: () -> Unit) {
             }
         }
 
-        // ▶️ START BUTTON (below wood)
+        // ▶️START BUTTON (below wood)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 95.dp), // 🔥 adjust THIS
+                .padding(bottom = 95.dp),
             contentAlignment = Alignment.Center
         ) {
             Button(
@@ -151,7 +151,7 @@ fun BubbleText(text: String) {
 
     Box(contentAlignment = Alignment.Center) {
 
-        // 🔲 OUTLINE (fake stroke using multiple offsets)
+        // OUTLINE (fake stroke using multiple offsets)
         val outlineColor = Color.White
 
         listOf(
@@ -169,7 +169,7 @@ fun BubbleText(text: String) {
             )
         }
 
-        // 🟤 SHADOW
+        // SHADOW
         Text(
             text = text,
             fontSize = fontSize,
@@ -178,7 +178,7 @@ fun BubbleText(text: String) {
             modifier = Modifier.offset(4.dp, 4.dp)
         )
 
-        // 🟠 MAIN FILL (bubble gradient)
+        //  MAIN FILL (bubble gradient)
         Text(
             text = text,
             fontSize = fontSize,

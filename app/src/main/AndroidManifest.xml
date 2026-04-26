@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <attribution
+        android:tag="AudioPlayback"
+        android:label="@string/attribution_gameplay" />
 
     <application
         android:allowBackup="true"
@@ -13,7 +18,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.BattleshipCarrot">
+        android:theme="@style/Theme.BattleshipCarrot"
+        tools:ignore="UnusedAttribute">
         <activity
             android:name="ch.fhnw.vinnai.battleshipclient.MainActivity"
             android:exported="true"
