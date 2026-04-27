@@ -60,6 +60,14 @@ fun GameScreen(
             )
         }
 
+        if (viewModel.joinedGameId.isNotBlank()) {
+            Text(
+                text = "Game ID: ${viewModel.joinedGameId}",
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // ── Game Over Banner ──

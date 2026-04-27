@@ -8,7 +8,7 @@ import androidx.activity.viewModels
 import ch.fhnw.vinnai.battleshipclient.ui.theme.BattleshipCarrotTheme
 
 // Use 10.0.2.2 to access the host's localhost from the Android emulator
-const val BASE_URL = "http://10.0.2.2:50003"
+const val DEFAULT_BASE_URL = "http://192.168.1.76:50003"
 
 class MainActivity : ComponentActivity() {
     private val viewModel: BattleshipViewModel by viewModels()

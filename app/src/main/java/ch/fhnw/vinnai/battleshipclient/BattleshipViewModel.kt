@@ -20,6 +20,7 @@ import java.net.URL
 class BattleshipViewModel : ViewModel() {
     var pingResult by mutableStateOf<Boolean?>(null)
     var statusMessage by mutableStateOf("")
+    var serverBaseUrl by mutableStateOf(DEFAULT_BASE_URL)
     var isMyTurn by mutableStateOf(false)
     var gameOver by mutableStateOf(false)
     var hasJoined by mutableStateOf(false)
@@ -32,6 +33,9 @@ class BattleshipViewModel : ViewModel() {
 
     private var playerName = ""
     private var gameKey = ""
+
+    val joinedGameId: String
+        get() = gameKey
 
     // ── Ship placement state ──────────────────────────────────────
     private val shipOrder = ShipType.entries          // Carrier → PatrolBoat
@@ -112,6 +116,21 @@ class BattleshipViewModel : ViewModel() {
             }
             pingResult = result
         }
+    }
+
+    fun updateServerBaseUrl(rawValue: String): Boolean {
+        val normalized = normalizeBaseUrl(rawValue) ?: run {
+            statusMessage = "Invalid server URL"
+            pingResult = false
+            return false
+        }
+
+        serverBaseUrl = normalized
+        pingResult = null
+        if (statusMessage == "Invalid server URL") {
+            statusMessage = ""
+        }
+        return true
     }
 
     fun joinGame(player: String, key: String) {
@@ -284,7 +303,23 @@ class BattleshipViewModel : ViewModel() {
         }
     }
 
-    private fun apiUrl(path: String) = URL("$BASE_URL$path")
+    private fun apiUrl(path: String) = URL("$serverBaseUrl$path")
+
+    private fun normalizeBaseUrl(rawValue: String): String? {
+        val trimmed = rawValue.trim().trimEnd('/')
+        if (trimmed.isBlank()) return null
+
+        return try {
+            val parsed = URL(trimmed)
+            if (parsed.protocol !in listOf("http", "https") || parsed.host.isBlank()) {
+                null
+            } else {
+                trimmed
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
 
     private fun HttpURLConnection.setupJsonPost() {
         requestMethod = "POST"

@@ -67,8 +67,11 @@ fun BattleshipApp(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            ServerBar(viewModel)
-            JoinBar(viewModel)
+            val showConnectionControls = viewModel.allShipsPlaced && !viewModel.hasJoined
+            if (showConnectionControls) {
+                ServerBar(viewModel)
+                JoinBar(viewModel)
+            }
 
             if (viewModel.hasJoined) {
                 GameScreen(
@@ -198,6 +201,8 @@ fun BubbleText(text: String) {
 
 @Composable
 private fun ServerBar(viewModel: BattleshipViewModel) {
+    var serverAddressInput by rememberSaveable { mutableStateOf(viewModel.serverBaseUrl) }
+
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -205,8 +210,21 @@ private fun ServerBar(viewModel: BattleshipViewModel) {
             .fillMaxWidth()
             .padding(BAR_PADDING)
     ) {
-        Text("Server: $BASE_URL")
-        Button(onClick = { viewModel.ping() }) {
+        TextField(
+            value = serverAddressInput,
+            onValueChange = { serverAddressInput = it },
+            label = { Text("Server") },
+            modifier = Modifier.weight(1f)
+        )
+        Button(
+            onClick = {
+                if (viewModel.updateServerBaseUrl(serverAddressInput)) {
+                    serverAddressInput = viewModel.serverBaseUrl
+                    viewModel.ping()
+                }
+            },
+            modifier = Modifier.padding(start = FIELD_PADDING)
+        ) {
             Text("Ping")
         }
         PingStatusIndicator(viewModel.pingResult)
