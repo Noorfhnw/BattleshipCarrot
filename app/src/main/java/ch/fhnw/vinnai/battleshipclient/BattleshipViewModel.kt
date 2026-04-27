@@ -18,6 +18,12 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 class BattleshipViewModel : ViewModel() {
+    enum class SoundEffect {
+        CARROT_EAT,
+        WIN,
+        LOSE
+    }
+
     var pingResult by mutableStateOf<Boolean?>(null)
     var statusMessage by mutableStateOf("")
     var serverBaseUrl by mutableStateOf(DEFAULT_BASE_URL)
@@ -45,6 +51,8 @@ class BattleshipViewModel : ViewModel() {
     var isHorizontal by mutableStateOf(true)
     var placementBoard = Array(10) { Array(10) { mutableStateOf(CellState.EMPTY) } }
     var placementErrorMessage by mutableStateOf("")
+    var pendingSoundEffect by mutableStateOf<SoundEffect?>(null)
+    var soundEventVersion by mutableIntStateOf(0)
 
     val currentShipType: ShipType?
         get() = shipOrder.getOrNull(currentShipIndex)
@@ -143,6 +151,7 @@ class BattleshipViewModel : ViewModel() {
         didIWin = null
         isMyTurn = false
         sunkEnemyShips = emptyList()
+        pendingSoundEffect = null
         statusMessage = "Waiting for opponent…"
 
         // Copy placed ships onto the defence board so they show during the game
@@ -233,6 +242,9 @@ class BattleshipViewModel : ViewModel() {
                         } else {
                             val hit = json.getBoolean("hit")
                             opponentBoard[y][x].value = if (hit) CellState.HIT else CellState.MISS
+                            if (hit) {
+                                emitSoundEffect(SoundEffect.CARROT_EAT)
+                            }
 
                             // Check if we won (all 5 enemy ships sunk)
                             val shipsSunk = json.optJSONArray("shipsSunk")
@@ -242,6 +254,7 @@ class BattleshipViewModel : ViewModel() {
                             if (shipsSunk != null && shipsSunk.length() >= 5) {
                                 gameOver = true
                                 didIWin = true
+                                emitSoundEffect(SoundEffect.WIN)
                             } else {
                                 isMyTurn = false
                                 waitForEnemyFire()
@@ -305,10 +318,22 @@ class BattleshipViewModel : ViewModel() {
         gameOver = json.optBoolean("gameover", false)
         if (gameOver) {
             // If the game ended on the opponent's turn, we lost
-            if (didIWin == null) didIWin = false
+            if (didIWin == null) {
+                didIWin = false
+                emitSoundEffect(SoundEffect.LOSE)
+            }
         } else {
             isMyTurn = true
         }
+    }
+
+    fun consumePendingSoundEffect() {
+        pendingSoundEffect = null
+    }
+
+    private fun emitSoundEffect(effect: SoundEffect) {
+        pendingSoundEffect = effect
+        soundEventVersion++
     }
 
     private fun apiUrl(path: String) = URL("$serverBaseUrl$path")

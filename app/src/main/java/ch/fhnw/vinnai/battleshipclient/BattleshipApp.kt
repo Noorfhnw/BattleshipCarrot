@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -52,9 +53,22 @@ private val START_BUTTON_TEXT_SIZE = 20.sp
 @Composable
 fun BattleshipApp(
     viewModel: BattleshipViewModel,
-    onTryFindCarrot: () -> Unit = {}
+    onTryFindCarrot: () -> Unit = {},
+    onEnemyShipHit: () -> Unit = {},
+    onGameWon: () -> Unit = {},
+    onGameLost: () -> Unit = {}
 ) {
     var showWelcome by rememberSaveable { mutableStateOf(true) }
+
+    LaunchedEffect(viewModel.soundEventVersion) {
+        when (viewModel.pendingSoundEffect) {
+            BattleshipViewModel.SoundEffect.CARROT_EAT -> onEnemyShipHit()
+            BattleshipViewModel.SoundEffect.WIN -> onGameWon()
+            BattleshipViewModel.SoundEffect.LOSE -> onGameLost()
+            null -> Unit
+        }
+        viewModel.consumePendingSoundEffect()
+    }
 
     if (showWelcome) {
         WelcomeScreen(onStartClick = { showWelcome = false })
@@ -73,6 +87,13 @@ fun BattleshipApp(
                 JoinBar(viewModel)
             }
 
+            AudioTestPanel(
+                onTryFindCarrot = onTryFindCarrot,
+                onEnemyShipHit = onEnemyShipHit,
+                onGameWon = onGameWon,
+                onGameLost = onGameLost
+            )
+
             if (viewModel.hasJoined) {
                 GameScreen(
                     viewModel = viewModel,
@@ -82,6 +103,33 @@ fun BattleshipApp(
                 ShipPlacementScreen(viewModel)
             }
         }
+    }
+}
+
+@Composable
+private fun AudioTestPanel(
+    onTryFindCarrot: () -> Unit,
+    onEnemyShipHit: () -> Unit,
+    onGameWon: () -> Unit,
+    onGameLost: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = BAR_PADDING),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Debug Audio Test")
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(FIELD_PADDING),
+            modifier = Modifier.padding(top = FIELD_PADDING)
+        ) {
+            Button(onClick = onTryFindCarrot) { Text("Dig") }
+            Button(onClick = onEnemyShipHit) { Text("Hit") }
+            Button(onClick = onGameWon) { Text("Win") }
+            Button(onClick = onGameLost) { Text("Lose") }
+        }
+        Spacer(modifier = Modifier.height(FIELD_PADDING))
     }
 }
 

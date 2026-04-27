@@ -22,7 +22,10 @@ class MainActivity : ComponentActivity() {
             BattleshipCarrotTheme {
                 BattleshipApp(
                     viewModel = viewModel,
-                    onTryFindCarrot = { soundManager.playDig() }
+                    onTryFindCarrot = { soundManager.playDig() },
+                    onEnemyShipHit = { soundManager.playCarrotEat() },
+                    onGameWon = { soundManager.playWin() },
+                    onGameLost = { soundManager.playLose() }
                 )
             }
         }

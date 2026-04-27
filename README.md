@@ -15,6 +15,10 @@ It is a playful carrot-themed adaptation of Battleship, made for the 26FS Mobile
 
 The app has a custom welcome screen, themed UI elements (rabbit/carrot visuals, earthy color palette), background music, and a sound effect when firing.
 
+Sound effects are free Sound Effects by freesound_community from Pixabay:
+- Lose sound: 'Violin Win 3' Sound Effect by floraphonic from Pixabay
+- 
+
 ### What it looks like
 
 The UI has three main phases:
