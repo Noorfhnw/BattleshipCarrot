@@ -32,7 +32,7 @@ private const val GRID_SIZE = 10
 private val ROW_LABELS = ('A'..'J').toList()
 private val COLUMN_LABELS = (0..9).toList()
 private val SCREEN_BACKGROUND = Color(0xFF6D4C41)
-private val ORIENTATION_BUTTON_COLOR = Color(0xFF4CAF50)
+private val ORIENTATION_BUTTON_COLOR = Color(0xFF009900)
 private val UNDO_BUTTON_COLOR = Color(0xFFFF9800)
 private val RESET_BUTTON_COLOR = Color(0xFFF44336)
 private val PRIMARY_TEXT_COLOR = Color.White
@@ -53,7 +53,7 @@ fun ShipPlacementScreen(viewModel: BattleshipViewModel) {
     ) {
         Spacer(modifier = Modifier.height(20.dp))
 
-        // ── Title ──
+        // Title
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = painterResource(id = R.drawable.rabbit),
@@ -75,7 +75,7 @@ fun ShipPlacementScreen(viewModel: BattleshipViewModel) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // ── Current ship info ──
+        // Current ship info
         val currentShip = viewModel.currentShipType
         if (currentShip != null) {
             Text(
@@ -97,7 +97,7 @@ fun ShipPlacementScreen(viewModel: BattleshipViewModel) {
             )
         }
 
-        // ── Error message ──
+        // Error message
         if (viewModel.placementErrorMessage.isNotEmpty()) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -109,7 +109,7 @@ fun ShipPlacementScreen(viewModel: BattleshipViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // ── Control buttons ──
+        // Control buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -126,7 +126,7 @@ fun ShipPlacementScreen(viewModel: BattleshipViewModel) {
                 enabled = viewModel.placedShips.isNotEmpty(),
                 colors = ButtonDefaults.buttonColors(containerColor = UNDO_BUTTON_COLOR)
             ) {
-                Text("↩ Undo")
+                Text("Undo")
             }
             Button(
                 onClick = { viewModel.resetPlacement() },
@@ -139,28 +139,23 @@ fun ShipPlacementScreen(viewModel: BattleshipViewModel) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // ── Placement grid ──
+        // Placement grid
         PlacementBoardView(viewModel)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // ── Ship list summary ──
+        // Ship list summary
         Text("Ships:", color = PRIMARY_TEXT_COLOR, fontWeight = FontWeight.Bold)
         ShipType.entries.forEachIndexed { index, type ->
             val placed = index < viewModel.currentShipIndex
             val current = index == viewModel.currentShipIndex
-            val symbol = when {
-                placed  -> "✅"
-                current -> "👉"
-                else    -> "⬜"
-            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
-                    text = "$symbol ${type.displayName}",
-                    color = if (current) HIGHLIGHT_TEXT_COLOR else PRIMARY_TEXT_COLOR,
+                    text = type.displayName,
+                    color = if (current || placed) HIGHLIGHT_TEXT_COLOR else PRIMARY_TEXT_COLOR,
                     fontWeight = if (current) FontWeight.Bold else FontWeight.Normal
                 )
                 repeat(type.size) {

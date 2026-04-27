@@ -279,7 +279,7 @@ private fun PingStatusIndicator(pingResult: Boolean?) {
         text = when (pingResult) {
             true -> "✅"
             false -> "❌"
-            null -> "❓"
+            null -> "?"
         }
     )
 }

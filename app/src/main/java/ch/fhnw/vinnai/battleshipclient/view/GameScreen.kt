@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,11 +71,10 @@ fun GameScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // ── Game Over Banner ──
+        // Game Over banner
         if (viewModel.gameOver) {
             val won = viewModel.didIWin == true
             val bannerColor = if (won) Color(0xFF4CAF50) else Color(0xFFF44336)
-            val bannerEmoji = if (won) "🏆" else "💀"
             val bannerText = if (won) "You Won!" else "You Lost!"
 
             Box(
@@ -87,7 +87,7 @@ fun GameScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "$bannerEmoji  $bannerText  $bannerEmoji",
+                    text = bannerText,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -106,6 +106,19 @@ fun GameScreen(
             color = if (viewModel.gameOver) Color.White else Color.Yellow,
             fontWeight = FontWeight.Bold
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = stringResource(R.string.sunk_enemy_carrots),
+            color = Color.White,
+            fontWeight = FontWeight.Bold
+        )
+        if (viewModel.sunkEnemyShips.isEmpty()) {
+            Text(text = stringResource(R.string.sunk_enemy_carrots_none), color = Color(0xFFFFF59D))
+        } else {
+            Text(text = viewModel.sunkEnemyShips.joinToString("\n") { "- $it" }, color = Color(0xFFFFF59D))
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -133,7 +146,7 @@ private fun BoardView(
     onCellClick: (Int, Int) -> Unit
 ) {
     Column {
-        // 🔝 Column labels (0–9)
+        // Column labels (0–9)
         Row {
             Spacer(modifier = Modifier.size(36.dp)) // top-left empty
             COLUMN_LABELS.forEach { col ->
@@ -146,10 +159,10 @@ private fun BoardView(
             }
         }
 
-        // 🧩 Grid with row labels
+        //  Grid with row labels
         for (row in 0 until GRID_SIZE) {
             Row {
-                // 🔠 Row label (A–J)
+                // Row label (A–J)
                 Box(
                     modifier = Modifier.size(36.dp),
                     contentAlignment = Alignment.Center
@@ -157,7 +170,7 @@ private fun BoardView(
                     Text(ROW_LABELS[row].toString(), fontWeight = FontWeight.Bold, color = Color.White)
                 }
 
-                // 🟩 Cells
+                // Cells
                 for (col in 0 until GRID_SIZE) {
                     GridCell(
                         state = grid[row][col].value,

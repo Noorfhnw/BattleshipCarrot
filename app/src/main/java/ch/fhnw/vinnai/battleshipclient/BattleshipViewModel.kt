@@ -27,6 +27,7 @@ class BattleshipViewModel : ViewModel() {
     var isJoining by mutableStateOf(false)
     /** null while game is running, true if we won, false if we lost */
     var didIWin by mutableStateOf<Boolean?>(null)
+    var sunkEnemyShips by mutableStateOf<List<String>>(emptyList())
 
     var myBoard = Array(10) { Array(10) { mutableStateOf(CellState.EMPTY) } }
     var opponentBoard = Array(10) { Array(10) { mutableStateOf(CellState.EMPTY) } }
@@ -37,7 +38,7 @@ class BattleshipViewModel : ViewModel() {
     val joinedGameId: String
         get() = gameKey
 
-    // ── Ship placement state ──────────────────────────────────────
+    // Ship placement state
     private val shipOrder = ShipType.entries          // Carrier → PatrolBoat
     var placedShips by mutableStateOf<List<PlacedShip>>(emptyList())
     var currentShipIndex by mutableIntStateOf(0)
@@ -51,7 +52,7 @@ class BattleshipViewModel : ViewModel() {
     val allShipsPlaced: Boolean
         get() = currentShipIndex >= shipOrder.size
 
-    /** Toggle horizontal / vertical orientation. */
+    /** Toggle horizontal/vertical orientation. */
     fun toggleOrientation() {
         isHorizontal = !isHorizontal
     }
@@ -138,6 +139,10 @@ class BattleshipViewModel : ViewModel() {
         playerName = player
         gameKey = key
         isJoining = true
+        gameOver = false
+        didIWin = null
+        isMyTurn = false
+        sunkEnemyShips = emptyList()
         statusMessage = "Waiting for opponent…"
 
         // Copy placed ships onto the defence board so they show during the game
@@ -231,6 +236,9 @@ class BattleshipViewModel : ViewModel() {
 
                             // Check if we won (all 5 enemy ships sunk)
                             val shipsSunk = json.optJSONArray("shipsSunk")
+                            if (shipsSunk != null) {
+                                sunkEnemyShips = shipsSunk.toShipNameList()
+                            }
                             if (shipsSunk != null && shipsSunk.length() >= 5) {
                                 gameOver = true
                                 didIWin = true
@@ -331,5 +339,24 @@ class BattleshipViewModel : ViewModel() {
 
     private fun HttpURLConnection.writeJson(body: JSONObject) {
         outputStream.bufferedWriter().use { it.write(body.toString()) }
+    }
+
+    private fun JSONArray.toShipNameList(): List<String> {
+        val names = mutableListOf<String>()
+        for (i in 0 until length()) {
+            val rawName = optString(i).trim()
+            if (rawName.isNotEmpty()) {
+                names += rawName.toShipDisplayName()
+            }
+        }
+        return names.distinct()
+    }
+
+    private fun String.toShipDisplayName(): String {
+        val normalized = filter { it.isLetterOrDigit() }.lowercase()
+        return ShipType.entries
+            .firstOrNull { it.name.filter { ch -> ch.isLetterOrDigit() }.lowercase() == normalized }
+            ?.displayName
+            ?: this
     }
 }

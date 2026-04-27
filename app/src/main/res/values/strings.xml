@@ -4,4 +4,6 @@
     <string name="start_button">Start</string>
     <string name="welcome_background_description">Wooden sign in a forest background</string>
     <string name="attribution_gameplay">Gameplay and audio events</string>
+    <string name="sunk_enemy_carrots">Chomped enemy carrots:</string>
+    <string name="sunk_enemy_carrots_none">None yet</string>
 </resources>

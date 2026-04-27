@@ -18,6 +18,11 @@ import com.example.battleshipcarrot.R
 @Composable
 fun GridCell(state: CellState, onClick: () -> Unit) {
     val backgroundColor = if (state == CellState.HIT || state == CellState.MISS) Color(0xFF795548) else Color(0xFF8BC34A)
+    val imageRes = when (state) {
+        CellState.HIT -> R.drawable.carrot_eaten
+        CellState.SHIP -> R.drawable.carrot
+        else -> null
+    }
 
     val emoji: String? = when (state) {
         CellState.EMPTY -> "🌱"
@@ -28,16 +33,16 @@ fun GridCell(state: CellState, onClick: () -> Unit) {
 
     Box(
         modifier = Modifier
-            .size(36.dp)   // 👈 SAME as labels!
+            .size(36.dp)
             .padding(2.dp)
             .background(backgroundColor)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        if (state == CellState.HIT || state == CellState.SHIP) {
+        if (imageRes != null) {
             Image(
-                painter = painterResource(id = R.drawable.carrot),
-                contentDescription = "Hit",
+                painter = painterResource(id = imageRes),
+                contentDescription = if (state == CellState.HIT) "Hit carrot" else "Carrot ship",
                 modifier = Modifier.size(28.dp)
             )
         } else if (emoji != null) {
